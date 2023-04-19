@@ -1,70 +1,104 @@
 package me.kirillirik.candidate;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.Set;
+import java.util.*;
 
 public final class Rule {
 
     private final String expression;
     private final String answer;
+    private Part root;
+
 
     public Rule(String expression, String answer) {
         this.expression = expression;
         this.answer = answer;
+        parse();
     }
 
-    private void processOperator(Deque<Integer> numbers, String operation) {
-        int right = numbers.removeLast();
-        int left = numbers.removeLast();
+    public String getExpression() {
+        return expression;
+    }
+
+    public String getAnswer() {
+        return answer;
+    }
+
+    public Part getRoot() {
+        return root;
+    }
+
+    private void processOperator(Deque<Part> parts, String operation) {
+        final Part right = parts.removeLast();
+        final Part left = parts.removeLast();
+
+        final Part operationPart = new Part(operation);
         switch (operation) {
-            case "или", "ИЛИ" -> numbers.add(left + right);
-            case "и", "И" -> numbers.add(left * right);
+            case "или", "ИЛИ", "и", "И" -> {
+                operationPart.addChild(right);
+                operationPart.addChild(left);
+                parts.add(operationPart);
+            }
         }
     }
 
-    public boolean parse(Set<String> signs) {
-        final Deque<Integer> numbers = new ArrayDeque<>();
+    private void parse() {
+        final Deque<Part> parts = new ArrayDeque<>();
         final Deque<String> operations = new ArrayDeque<>();
+        final String[] stringParts = expression.split(" ");
 
-        final String[] parts = expression.split(" ");
+        boolean operation = false;
+        for (final String str : stringParts) {
+            operation = process(str, operations, parts, operation);
+        }
 
-        for (final String str : parts) {
-            switch (str) {
-                case "(" -> operations.add(str);
-                case ")" -> {
-                    while (!operations.getLast().equals("(")) {
-                        processOperator(numbers, operations.removeLast());
-                    }
+        while (!operations.isEmpty()) {
+            processOperator(parts, operations.removeLast());
+        }
 
-                    operations.removeLast();
+        root = parts.getLast();
+    }
+
+    private boolean process(String str, Deque<String> operations, Deque<Part> parts, boolean operation) {
+        if (str.length() > 1 && str.startsWith("(")) {
+            process("(", operations, parts, operation);
+            operation = process(str.substring(1), operations, parts, operation);
+            return operation;
+        }
+
+        if (str.length() > 1 && str.endsWith(")")) {
+            operation = process(str.substring(0, str.length() - 1), operations, parts, operation);
+            process(")", operations, parts, operation);
+            return operation;
+        }
+
+        switch (str) {
+            case "(" -> operations.add(str);
+            case ")" -> {
+                while (!operations.getLast().equals("(")) {
+                    processOperator(parts, operations.removeLast());
                 }
-                case "и", "И", "или", "ИЛИ" -> {
-                    while (!operations.isEmpty() && operationPriority(operations.getLast()) >= operationPriority(str)) {
-                        processOperator(numbers, operations.removeLast());
-                    }
 
-                    operations.add(str);
+                operations.removeLast();
+            }
+            case "и", "И", "или", "ИЛИ" -> {
+                while (!operations.isEmpty() && operationPriority(operations.getLast()) >= operationPriority(str)) {
+                    processOperator(parts, operations.removeLast());
                 }
-                default -> {
-                    if (signs.contains(str)) {
-                        numbers.add(1);
-                    } else {
-                        numbers.add(0);
-                    }
+
+                operations.add(str);
+            }
+            default -> {
+                if (operation) {
+                    parts.getLast().addPart(str);
+                } else {
+                    parts.add(new Part(str));
                 }
+
+                return true;
             }
         }
 
-        System.out.println(numbers);
-
-
-        while (!operations.isEmpty()) {
-            System.out.println(operations.getLast());
-            processOperator(numbers, operations.removeLast());
-        }
-
-        return numbers.getFirst() >= 1;
+        return false;
     }
 
     private int operationPriority(String operation) {

@@ -10,24 +10,23 @@ public class Node {
     public static int NODE_COUNTER = 0;
 
     protected final int id;
-    protected final int dataID;
-    protected final String title;
     protected final int inputID;
     protected final int outputID;
     protected final Color color;
     protected final Set<Integer> links = new HashSet<>();
+    protected String title;
 
     protected int x, y;
 
-    public Node(String title, int dataID, int x, int y) {
+    public Node(String title, int x, int y) {
         this.id = NODE_COUNTER++;
-        this.dataID = dataID;
-        this.title = title;
+
         this.x = x;
         this.y = y;
         this.inputID = id * 2;
         this.outputID = id * 2 + 1;
         this.color = new Color(0, 0, 0);
+        this.title = title;
     }
 
     public void addLink(int id) {
@@ -44,10 +43,6 @@ public class Node {
 
     public int getID() {
         return id;
-    }
-
-    public int getDataID() {
-        return dataID;
     }
 
     public String getTitle() {

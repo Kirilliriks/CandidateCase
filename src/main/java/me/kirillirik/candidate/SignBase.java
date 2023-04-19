@@ -1,33 +1,41 @@
 package me.kirillirik.candidate;
 
 import java.io.*;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
-public final class RuleBase {
+public final class SignBase {
 
-    private static final String BASE_FILE = "rulebase.txt";
+    private static final String BASE_FILE = "singbase.txt";
 
-    private final SignBase signBase;
-    private final List<Rule> rules = new ArrayList<>();
+    private final Set<String> signs = new HashSet<>();
 
-    public RuleBase(SignBase signBase) {
-        this.signBase = signBase;
+    public void addSign(String sign) {
+        signs.add(sign);
     }
 
-    public void addRule(Rule rule) {
-        signBase.addIfNeedSigns(rule);
-
-        rules.add(rule);
+    public void addIfNeedSigns(Rule rule) {
+        addIfNeedSigns(rule.getRoot());
     }
 
-    public Rule getLastRule() {
-        return rules.get(rules.size() - 1);
+    private void addIfNeedSigns(Part part) {
+        if (part.isSign()) {
+            addSign(part.getTitle().toLowerCase());
+        }
+
+        for (final Part child : part.getChildren()) {
+            addIfNeedSigns(child);
+        }
+    }
+
+    public boolean contains(String sign) {
+        return signs.contains(sign);
     }
 
     public void save() {
         try (final BufferedWriter writer = new BufferedWriter(new FileWriter(BASE_FILE))) {
-            for (final Rule rule : rules) {
-                writer.write(rule.getExpression() + ":" + rule.getAnswer());
+            for (final String sign : signs) {
+                writer.write(sign);
                 writer.newLine();
             }
         } catch (IOException e) {
@@ -50,9 +58,7 @@ public final class RuleBase {
             String line = reader.readLine();
 
             while (line != null) {
-                final String[] split = line.split(":");
-
-                addRule(new Rule(split[0], split[1]));
+                addSign(line);
 
                 line = reader.readLine();
             }

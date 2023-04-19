@@ -3,15 +3,15 @@ package me.kirillirik.tree;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class TreeNode extends Node {
+public class TreeNode extends Node {
 
     private final TreeNode parent;
     private final List<TreeNode> children = new ArrayList<>();
 
     private int width = 0;
 
-    public TreeNode(TreeNode parent, String title, int id, int x, int y) {
-        super(title, id, x, y);
+    public TreeNode(TreeNode parent, String title, int x, int y) {
+        super(title, x, y);
         this.parent = parent;
     }
 
@@ -39,7 +39,7 @@ public final class TreeNode extends Node {
     }
 
     public TreeNode addChild(String title, int dataID) {
-        final var newChild = new TreeNode(this, title, dataID, x + X_OFFSET, y);
+        final var newChild = new TreeNode(this, title, x + X_OFFSET, y);
         addLink(newChild.getID());
 
         children.add(newChild);

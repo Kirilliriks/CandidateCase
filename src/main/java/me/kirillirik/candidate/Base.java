@@ -10,29 +10,33 @@ import me.kirillirik.tree.Color;
 import me.kirillirik.tree.Node;
 import me.kirillirik.tree.TreeNode;
 
-import java.util.*;
-
 public final class Base {
 
-    private final List<Node> nodes = new ArrayList<>();
     private int linkID = 0;
 
-
-
+    private final SignBase signBase;
     private final RuleBase ruleBase;
+
+    private final ImString first;
+    private final ImString second;
     private State state;
     private String error;
 
-    private boolean needClose;
     private boolean positioned;
-
+    private Part root;
 
     public Base() {
-        ruleBase = new RuleBase();
+        signBase = new SignBase();
+        ruleBase = new RuleBase(signBase);
+        first = new ImString();
+        second = new ImString();
 
         Node.NODE_COUNTER = 0;
 
         state = State.INIT;
+        //test = new Rule("Идёт снег и Б или (В и Д или Г и (Кажется дождь начинается и С))", "check");
+
+        load();
     }
 
     private void colorPath(float r, float g, float b, TreeNode node) {
@@ -42,6 +46,16 @@ public final class Base {
 
         node.getColor().set(r, g, b);
         colorPath(r, g, b, node.getParent());
+    }
+
+    private void updateRoot() {
+        root = ruleBase.getLastRule().getRoot();
+        root.setX(100);
+        root.setY(100);
+        root.updateWidth();
+        root.updatePos();
+
+        positioned = false;
     }
 
     public void update() {
@@ -59,14 +73,33 @@ public final class Base {
                 if (ImGui.button("Добавить правило")) {
                     state = State.NEW_RULE;
                 }
+                ImGui.sameLine();
+                if (ImGui.button("Получить ответ")) {
+                    state = State.FORWARD;
+                }
+                ImGui.sameLine();
+                if (ImGui.button("Получить признаки из ответа")) {
+                    state = State.BACK;
+                }
             }
             case NEW_RULE ->  {
                 ImGui.text("Введите новое правило в формате \"ЕСЛИ x1 ТО x2 \"");
                 ImGui.text("Где x1 - признак1 и/или признак2 и/или .... и/или признакN");
                 ImGui.text("Где x2 - строка результат");
-                ImGui.setNextItemWidth(600);
-                ImGui.inputText("ЕСЛИ ", new ImString());
-                ImGui.inputText("ТО ", new ImString());
+                ImGui.setNextItemWidth(400);
+                ImGui.inputText("ЕСЛИ ", first);
+                ImGui.setNextItemWidth(400);
+                ImGui.inputText("ТО ", second);
+
+                if (ImGui.button("Добавить")) {
+                    state = State.INIT;
+
+                    ruleBase.addRule(new Rule(first.get(), second.get()));
+                    first.clear();
+                    second.clear();
+
+                    updateRoot();
+                }
             }
         }
 
@@ -75,8 +108,10 @@ public final class Base {
         ImGui.begin("Дерево");
         ImNodes.beginNodeEditor();
 
-        //displayTreeNode(root);
-        //linkTreeNode(root);
+        if (root != null) {
+            displayTreeNode(root);
+            linkTreeNode(root);
+        }
 
         ImNodes.miniMap(0.2f, ImNodesMiniMapLocation.BottomRight);
         ImNodes.endNodeEditor();
@@ -86,6 +121,16 @@ public final class Base {
         if (!positioned) {
             positioned = true;
         }
+    }
+
+    public void load() {
+        signBase.load();
+        ruleBase.load();
+    }
+
+    public void save() {
+        signBase.save();
+        ruleBase.save();
     }
 
     private void linkNode(Node node) {
@@ -118,28 +163,24 @@ public final class Base {
         ImNodes.endNode();
     }
 
-    private void linkTreeNode(TreeNode node) {
+    private void linkTreeNode(Part node) {
         linkNode(node);
         for (final var child : node.getChildren()) {
             linkTreeNode(child);
         }
     }
 
-    private void displayTreeNode(TreeNode node) {
+    private void displayTreeNode(Part node) {
         displayNode(node);
         for (final var child : node.getChildren()) {
             displayTreeNode(child);
         }
     }
 
-    public boolean isNeedClose() {
-        return needClose;
-    }
-
-
     public enum State {
         INIT,
         NEW_RULE,
-        GET_INFO
+        FORWARD,
+        BACK
     }
 }

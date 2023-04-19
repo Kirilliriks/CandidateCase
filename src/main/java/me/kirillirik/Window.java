@@ -6,6 +6,7 @@ import imgui.extension.imnodes.ImNodes;
 import imgui.flag.ImGuiConfigFlags;
 import imgui.gl3.ImGuiImplGl3;
 import imgui.glfw.ImGuiImplGlfw;
+import me.kirillirik.candidate.Base;
 import org.lwjgl.glfw.Callbacks;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -25,11 +26,11 @@ public final class Window {
     private String glslVersion;
     private long window;
 
-    private MainWindow mainWindow;
+    private Base base;
 
     public Window() {
         glslVersion = null;
-        mainWindow = new MainWindow();
+        base = new Base();
     }
 
     public void init() {
@@ -92,7 +93,6 @@ public final class Window {
     }
 
     public void run() {
-
         while (!glfwWindowShouldClose(window)) {
             glClearColor(0.1f, 0.09f, 0.1f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
@@ -100,7 +100,7 @@ public final class Window {
             imGuiGlfw.newFrame();
             ImGui.newFrame();
 
-            mainWindow.update();
+            base.update();
 
             ImGui.render();
             imGuiGl3.renderDrawData(ImGui.getDrawData());
@@ -115,6 +115,8 @@ public final class Window {
             GLFW.glfwSwapBuffers(window);
             GLFW.glfwPollEvents();
         }
+
+        base.save();
     }
 
     public static int getWidth() {
