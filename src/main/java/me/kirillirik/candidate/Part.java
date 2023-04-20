@@ -4,6 +4,7 @@ import me.kirillirik.tree.Node;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public final class Part extends Node {
 
@@ -15,10 +16,39 @@ public final class Part extends Node {
     public Part(String part) {
         super(part, 0, 0);
 
-        switch (part) {
-            case "и", "И", "или", "ИЛИ" -> sign = false;
+        switch (part.toLowerCase()) {
+            case "и", "или" -> sign = false;
             default -> sign = true;
         }
+    }
+
+    public boolean solve(Set<String> signs) {
+        if (sign) {
+            return signs.contains(title.toLowerCase());
+        }
+
+        switch (title.toLowerCase()) {
+            case "и" -> {
+                for (final Part child : children) {
+                    if (!child.solve(signs)) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+            case "или" -> {
+                for (final Part child : children) {
+                    if (child.solve(signs)) {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        }
+
+        throw new IllegalStateException("ISE " + title.toLowerCase());
     }
 
     public boolean isSign() {

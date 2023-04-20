@@ -15,6 +15,10 @@ public final class Rule {
         parse();
     }
 
+    public boolean solve(Set<String> signs) {
+        return root.solve(signs);
+    }
+
     public String getExpression() {
         return expression;
     }
@@ -32,8 +36,8 @@ public final class Rule {
         final Part left = parts.removeLast();
 
         final Part operationPart = new Part(operation);
-        switch (operation) {
-            case "или", "ИЛИ", "и", "И" -> {
+        switch (operation.toLowerCase()) {
+            case "или", "и" -> {
                 operationPart.addChild(right);
                 operationPart.addChild(left);
                 parts.add(operationPart);

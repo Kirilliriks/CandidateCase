@@ -20,8 +20,29 @@ public final class RuleBase {
         rules.add(rule);
     }
 
-    public Rule getLastRule() {
-        return rules.get(rules.size() - 1);
+    public List<Rule> getRulesByAnswerAndSigns(String answer, Set<String> signs) {
+        final List<Rule> result = new ArrayList<>();
+        for (final Rule rule : rules) {
+            if (!rule.getAnswer().equalsIgnoreCase(answer)) {
+                continue;
+            }
+
+            if (!signs.isEmpty()) {
+                if (!rule.solve(signs)) {
+                    continue;
+                }
+
+                if (signBase.singsFrom(rule).containsAll(signs)) {
+                    result.clear();
+                    result.add(rule);
+                    return result;
+                }
+            }
+
+            result.add(rule);
+        }
+
+        return result;
     }
 
     public void save() {
@@ -59,5 +80,9 @@ public final class RuleBase {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public List<Rule> getRules() {
+        return rules;
     }
 }

@@ -11,25 +11,38 @@ public final class SignBase {
     private final Set<String> signs = new HashSet<>();
 
     public void addSign(String sign) {
-        signs.add(sign);
+        signs.add(sign.toLowerCase());
     }
 
     public void addIfNeedSigns(Rule rule) {
-        addIfNeedSigns(rule.getRoot());
+        for (final String string : singsFrom(rule)) {
+            addSign(string);
+        }
     }
 
-    private void addIfNeedSigns(Part part) {
+    public Set<String> singsFrom(Rule rule) {
+        final Set<String> result = new HashSet<>();
+        return singsFrom(result, rule.getRoot());
+    }
+
+    public Set<String> singsFrom(Set<String> signs, Part part) {
         if (part.isSign()) {
-            addSign(part.getTitle().toLowerCase());
+            signs.add(part.getTitle());
         }
 
         for (final Part child : part.getChildren()) {
-            addIfNeedSigns(child);
+            singsFrom(signs, child);
         }
+
+        return signs;
     }
 
     public boolean contains(String sign) {
         return signs.contains(sign);
+    }
+
+    public Set<String> getSigns() {
+        return signs;
     }
 
     public void save() {
