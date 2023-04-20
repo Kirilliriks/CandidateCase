@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class Node {
+
     protected static final int X_OFFSET = 120;
     protected static final int Y_OFFSET = 40;
 

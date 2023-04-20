@@ -11,18 +11,41 @@ public final class Part extends Node {
     private Part parent;
     private final List<Part> children = new ArrayList<>();
     private final boolean sign;
+    private final boolean answer;
     private int width = 0;
 
     public Part(String part) {
+        this(part, false);
+    }
+
+    public Part(String part, boolean answer) {
         super(part, 0, 0);
 
+        this.answer = answer;
+
+        if (answer) {
+            sign = false;
+            color.set(0, 255, 0);
+            return;
+        }
+
         switch (part.toLowerCase()) {
-            case "и", "или" -> sign = false;
-            default -> sign = true;
+            case "и", "или" -> {
+                sign = false;
+                color.set(255, 0, 0);
+            }
+            default -> {
+                sign = true;
+                color.set(255, 0, 255);
+            }
         }
     }
 
     public boolean solve(Set<String> signs) {
+        if (answer) {
+            return children.get(0).solve(signs);
+        }
+
         if (sign) {
             return signs.contains(title.toLowerCase());
         }
@@ -52,7 +75,7 @@ public final class Part extends Node {
     }
 
     public boolean isSign() {
-        return sign;
+        return sign && !answer;
     }
 
     public void addPart(String add) {
@@ -71,6 +94,7 @@ public final class Part extends Node {
         if (children.size() == 1) {
             final Part child = children.get(0);
             child.y = y;
+            child.x = x + X_OFFSET;
             child.updatePos();
             return;
         }

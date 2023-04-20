@@ -28,11 +28,7 @@ public final class RuleBase {
             }
 
             if (!signs.isEmpty()) {
-                if (!rule.solve(signs)) {
-                    continue;
-                }
-
-                if (signBase.singsFrom(rule).containsAll(signs)) {
+                if (rule.solve(signs) && signBase.singsFrom(rule).containsAll(signs)) {
                     result.clear();
                     result.add(rule);
                     return result;

@@ -59,7 +59,8 @@ public final class Rule {
             processOperator(parts, operations.removeLast());
         }
 
-        root = parts.getLast();
+        root = new Part(answer + " если", true);
+        root.addChild(parts.getLast());
     }
 
     private boolean process(String str, Deque<String> operations, Deque<Part> parts, boolean operation) {

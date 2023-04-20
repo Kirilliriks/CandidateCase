@@ -5,6 +5,7 @@ import imgui.ImGui;
 import imgui.extension.imnodes.ImNodes;
 import imgui.extension.imnodes.flag.ImNodesColorStyle;
 import imgui.extension.imnodes.flag.ImNodesMiniMapLocation;
+import imgui.flag.ImGuiInputTextFlags;
 import imgui.flag.ImGuiTableFlags;
 import imgui.type.ImString;
 import me.kirillirik.tree.Color;
@@ -36,20 +37,11 @@ public final class Base {
     public Base() {
         signBase = new SignBase();
         ruleBase = new RuleBase(signBase);
-        first = new ImString();
-        second = new ImString();
+        first = new ImString(1000);
+        second = new ImString(1000);
 
         setState(State.INIT);
         load();
-    }
-
-    private void colorPath(float r, float g, float b, TreeNode node) {
-        if (node == null) {
-            return;
-        }
-
-        node.getColor().set(r, g, b);
-        colorPath(r, g, b, node.getParent());
     }
 
     private void updateRoot(Rule rule) {
@@ -118,7 +110,6 @@ public final class Base {
 
     private void back() {
         ImGui.text("Введите результат");
-        ImGui.setNextItemWidth(400);
         ImGui.inputText("##first", first);
 
         if (!ImGui.button("Поиск")) {
@@ -161,6 +152,7 @@ public final class Base {
         }
 
         uniqueString.addAll(stringIntegerMap.keySet());
+        uniqueString.removeAll(inputSigns);
     }
 
     private void backProcess() {
@@ -172,7 +164,6 @@ public final class Base {
             ImGui.text("Уточните есть ли один из таких признаков: " + String.join(", ", uniqueString));
 
             ImGui.text("Введите признак");
-            ImGui.setNextItemWidth(400);
             ImGui.inputText("##first", first);
 
             if (!ImGui.button("Добавить признак")) {
@@ -195,18 +186,31 @@ public final class Base {
         ImGui.text("Введите новое правило в формате \"ЕСЛИ x1 ТО x2 \"");
         ImGui.text("Где x1 - признак1 и/или признак2 и/или .... и/или признакN");
         ImGui.text("Где x2 - строка результат");
-        ImGui.setNextItemWidth(400);
         ImGui.inputText("ЕСЛИ ", first);
-        ImGui.setNextItemWidth(400);
         ImGui.inputText("ТО ", second);
 
         if (ImGui.button("Добавить")) {
-            final Rule rule = new Rule(first.get(), second.get());
-            ruleBase.addRule(rule);
+            final String expression = first.get();
+            if (expression == null || expression.isEmpty()) {
+                error = "Введите правило в поле ЕСЛИ";
+                return;
+            }
 
-            updateRoot(rule);
+            final String answer = second.get();
+            if (answer == null || answer.isEmpty()) {
+                error = "Введите результат в поле ТО";
+                return;
+            }
 
-            setState(State.INIT);
+            try {
+                final Rule rule = new Rule(expression, answer);
+                ruleBase.addRule(rule);
+
+                updateRoot(rule);
+                setState(State.INIT);
+            } catch (Throwable ignore) {
+                error = "Ошибка в водимом правиле";
+            }
         }
     }
 
@@ -289,7 +293,7 @@ public final class Base {
     private void displayNode(Node node) {
         final Color color = node.getColor();
         ImNodes.pushColorStyle(ImNodesColorStyle.NodeBackground,
-                ImColor.floatToColor(color.getR(), color.getG(), color.getB()));
+                ImColor.intToColor(color.getR(), color.getG(), color.getB()));
 
         final int id = node.getID();
         ImNodes.beginNode(id);
