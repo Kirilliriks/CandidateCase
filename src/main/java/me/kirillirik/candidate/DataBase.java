@@ -8,36 +8,21 @@ public final class DataBase {
     private final Set<Rule> rules = new HashSet<>();
 
     public DataBase() {
-        final Frame exampleFrame = new
-                Frame("Name")
-                    .slot("First slot", "First value")
-                    .slot("Second slot", 123)
-                    .daemon(frame -> "Daemon return info");
-
-        final Frame freeFrame = new
-                Frame("Чёткие требования")
-                    .slot("Образование", "Высшее")
-                    .slot("Свободное время", "Есть")
-                    .daemon(frame -> "Основные требования к соискателям");
-
-        final Frame time = new
-                Frame("Пригласить на собеседование")
-                    .slot("Резюме", "Есть")
-                    .slot("Номер телефона", "Есть")
-                    .daemon(frame -> "Компания пригласит на собеседование");
-
         addFrames(
-                freeFrame,
+                new Frame("Чёткие требования")
+                        .slot("Образование", "Высшее")
+                        .slot("Свободное время", "Есть")
+                        .daemon(frame -> "Основные требования к соискателям"),
                 new Frame("Пригласить на собеседование")
                         .slot("Резюме", "Есть")
                         .slot("Номер телефона", "Есть")
                         .daemon(frame -> "Компания пригласит на собеседование"),
                 new Frame("Подходящий студент")
-                        .extend(freeFrame)
+                        .extend("Чёткие требования")
                         .slot("Курс", 4)
                         .daemon(frame -> "Компания принимает студентов с " + frame.getSlots().get("Курс") + " курса"),
                 new Frame("Подходящий стажёр")
-                        .extend(freeFrame)
+                        .extend("Чёткие требования")
                         .slot("Навык программирования", "Есть")
                         .daemon(frame -> "Компания принимает стажёров с навыками программирования")
         );
@@ -48,6 +33,14 @@ public final class DataBase {
                 new Rule("Прошёл собеседование практикантом", "Вы прошли собеседование на позицию: практикант")
                         .addFrame(frames.get("Подходящий студент"))
         );
+    }
+
+    public void removeFrame(String frameName) {
+        frames.remove(frameName);
+    }
+
+    public void removeRule(Rule rule) {
+        rules.remove(rule);
     }
 
     public void addFrames(Frame... inputFrames) {

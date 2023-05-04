@@ -33,6 +33,6 @@ public final class Rule {
     }
 
     public boolean checkCondition(Set<Frame> frames) {
-        return this.frames.containsAll(frames);
+        return frames.containsAll(this.frames);
     }
 }

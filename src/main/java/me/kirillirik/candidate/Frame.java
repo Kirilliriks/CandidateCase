@@ -54,7 +54,6 @@ public final class Frame {
                     continue;
                 }
 
-
                 copy.remove(entry.getKey());
                 break;
             }
