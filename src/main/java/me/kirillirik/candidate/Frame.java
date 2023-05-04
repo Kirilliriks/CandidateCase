@@ -9,6 +9,7 @@ public final class Frame {
 
     private final String name;
     private final Map<String, Object> slots;
+    private Frame extend;
     private Function<Frame, String> daemon;
 
     public Frame(String name) {
@@ -16,8 +17,12 @@ public final class Frame {
         this.slots = new HashMap<>();
     }
 
-    public String getName() {
-        return name;
+    public Frame extend(Frame extend) {
+        this.extend = extend;
+        if (extend != null) {
+            slots.putAll(extend.getSlots());
+        }
+        return this;
     }
 
     public Frame slot(String name, Object value) {
@@ -61,7 +66,24 @@ public final class Frame {
         return this.toString();
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public Frame getExtend() {
+        return extend;
+    }
+
     public Map<String, Object> getSlots() {
         return slots;
+    }
+
+    @Override
+    public String toString() {
+        return "Frame{" +
+                "name='" + name + '\'' +
+                ", slots=" + slots +
+                ", daemon=" + daemon +
+                '}';
     }
 }

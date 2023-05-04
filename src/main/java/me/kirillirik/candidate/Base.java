@@ -76,7 +76,7 @@ public final class Base {
 
     private void showAnswer() {
         if (answer == null) {
-            ImGui.text("На заданные значения ответ не найден");
+            ImGui.text("К сожалению вы нам не подходите!");
             return;
         }
 
@@ -84,7 +84,7 @@ public final class Base {
     }
 
     private void showRules() {
-        final int flags = ImGuiTableFlags.Resizable | ImGuiTableFlags.Hideable | ImGuiTableFlags.RowBg |
+        final int flags = ImGuiTableFlags.Resizable | ImGuiTableFlags.SizingFixedSame | ImGuiTableFlags.RowBg |
                 ImGuiTableFlags.Borders | ImGuiTableFlags.NoBordersInBody | ImGuiTableFlags.ScrollY;
 
         if (ImGui.beginTable("#table", 3, flags)) {
@@ -98,13 +98,13 @@ public final class Base {
                 ImGui.tableNextRow(ImGuiTableFlags.None, 10);
 
                 ImGui.tableSetColumnIndex(0);
-                ImGui.text(rule.getName());
+                ImGui.textWrapped(rule.getName());
 
                 ImGui.tableSetColumnIndex(1);
-                ImGui.text(String.join(", ", rule.getFrames().stream().map(Frame::getName).toList()));
+                ImGui.textWrapped(String.join(", ", rule.getFrames().stream().map(Frame::getName).toList()));
 
                 ImGui.tableSetColumnIndex(2);
-                ImGui.text(rule.getResult());
+                ImGui.textWrapped(rule.getResult());
             }
 
             ImGui.endTable();
@@ -115,10 +115,12 @@ public final class Base {
         final int flags = ImGuiTableFlags.Resizable | ImGuiTableFlags.Hideable | ImGuiTableFlags.RowBg |
                 ImGuiTableFlags.Borders | ImGuiTableFlags.NoBordersInBody | ImGuiTableFlags.ScrollY;
 
-        if (ImGui.beginTable("#table", 3, flags)) {
+        if (ImGui.beginTable("#table", 5, flags)) {
             ImGui.tableSetupColumn("Название");
+            ImGui.tableSetupColumn("Название предка");
             ImGui.tableSetupColumn("Слоты");
             ImGui.tableSetupColumn("Результат выполнения демона");
+            ImGui.tableSetupColumn("Служебный вывод");
 
             ImGui.tableHeadersRow();
 
@@ -126,13 +128,29 @@ public final class Base {
                 ImGui.tableNextRow(ImGuiTableFlags.None, 10);
 
                 ImGui.tableSetColumnIndex(0);
-                ImGui.text(entry.getKey());
+                ImGui.textWrapped(entry.getKey());
 
                 ImGui.tableSetColumnIndex(1);
-                ImGui.text(String.join(", ", entry.getValue().getSlots().values().stream().map(Object::toString).toList()));
+
+                final Frame extend = entry.getValue().getExtend();
+                ImGui.textWrapped(extend == null ? "" : extend.getName());
 
                 ImGui.tableSetColumnIndex(2);
-                ImGui.text(entry.getValue().callDaemon());
+                ImGui.textWrapped(
+                        String.join(", ",
+                                entry.getValue()
+                                        .getSlots()
+                                        .entrySet()
+                                        .stream()
+                                        .map(frameEntry -> frameEntry.getKey() + " " + frameEntry.getValue()).toList()
+                        )
+                );
+
+                ImGui.tableSetColumnIndex(3);
+                ImGui.textWrapped(entry.getValue().callDaemon());
+
+                ImGui.tableSetColumnIndex(4);
+                ImGui.textWrapped(entry.getValue().getServiceInfo());
             }
 
             ImGui.endTable();

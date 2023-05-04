@@ -8,19 +8,23 @@ public final class DataBase {
     private final Set<Rule> rules = new HashSet<>();
 
     public DataBase() {
+        final Frame freeFrame = new Frame("Чёткие требования")
+                .slot("Образование", "Высшее")
+                .slot("Свободное время", "Есть")
+                .daemon(frame -> "Основные требования к соискателям");
+
         addFrames(
+                freeFrame,
                 new Frame("Пригласить на собеседование")
                         .slot("Резюме", "Есть")
                         .slot("Номер телефона", "Есть")
                         .daemon(frame -> "Компания пригласит на собеседование"),
                 new Frame("Подходящий студент")
-                        .slot("Образование", "Высшее")
-                        .slot("Свободное время", "Есть")
+                        .extend(freeFrame)
                         .slot("Курс", 4)
                         .daemon(frame -> "Компания принимает студентов с " + frame.getSlots().get("Курс") + " курса"),
                 new Frame("Подходящий стажёр")
-                        .slot("Образование", "Высшее")
-                        .slot("Свободное время", "Обязательно")
+                        .extend(freeFrame)
                         .slot("Навык программирования", "Есть")
                         .daemon(frame -> "Компания принимает стажёров с навыками программирования")
         );
