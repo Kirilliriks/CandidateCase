@@ -115,8 +115,6 @@ public final class Window {
             GLFW.glfwSwapBuffers(window);
             GLFW.glfwPollEvents();
         }
-
-        base.save();
     }
 
     public static int getWidth() {
