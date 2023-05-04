@@ -3,7 +3,6 @@ package me.kirillirik.candidate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 public final class Frame {
@@ -31,21 +30,38 @@ public final class Frame {
         return this;
     }
 
-    public boolean checkCondition(Set<String> input) {
-        for (final Object value : slots.values()) {
-            if (input.contains(value.toString())) {
-                continue;
-            }
+    public boolean checkCondition(Set<Pair<String, String>> inputs) {
+        final Map<String, Object> copy = new HashMap<>(slots);
 
-            return false;
+        for (final var entry : slots.entrySet()) {
+            for (final Pair<String, String> pair : inputs) {
+                if (!pair.getLeft().equalsIgnoreCase(entry.getKey()) ||
+                        !pair.getRight().equalsIgnoreCase(entry.getValue().toString())) {
+                    continue;
+                }
+
+
+                copy.remove(entry.getKey());
+                break;
+            }
         }
 
-        return true;
+        return copy.isEmpty();
     }
 
-    public void callDaemon() {
+    public String callDaemon() {
         if (daemon != null) {
-            daemon.apply(this);
+            return daemon.apply(this);
         }
+
+        return null;
+    }
+
+    public String getServiceInfo() {
+        return this.toString();
+    }
+
+    public Map<String, Object> getSlots() {
+        return slots;
     }
 }
