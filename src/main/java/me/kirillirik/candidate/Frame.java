@@ -9,6 +9,7 @@ public final class Frame {
 
     private final String name;
     private final Map<String, Object> slots;
+    private String extendName;
     private Frame extend;
     private Function<Frame, String> daemon;
 
@@ -17,11 +18,19 @@ public final class Frame {
         this.slots = new HashMap<>();
     }
 
+    public Frame extend(String extendName) {
+        this.extendName = extendName;
+        return this;
+    }
+
     public Frame extend(Frame extend) {
         this.extend = extend;
+
         if (extend != null) {
+            extendName = extend.getName();
             slots.putAll(extend.getSlots());
         }
+
         return this;
     }
 
@@ -56,14 +65,20 @@ public final class Frame {
 
     public String callDaemon() {
         if (daemon != null) {
-            return daemon.apply(this);
+            return daemon.apply(this) + (extend != null ? " " + extend.callDaemon() : "");
         }
 
         return null;
     }
 
+    public void register(DataBase base) {
+        if (extendName != null && extend == null) {
+            extend(base.getFrames().get(extendName));
+        }
+    }
+
     public String getServiceInfo() {
-        return this.toString();
+        return this.toString() + (extend != null ? " " + extend.getServiceInfo() : "");
     }
 
     public String getName() {

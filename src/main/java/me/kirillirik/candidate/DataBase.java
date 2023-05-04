@@ -8,10 +8,23 @@ public final class DataBase {
     private final Set<Rule> rules = new HashSet<>();
 
     public DataBase() {
-        final Frame freeFrame = new Frame("Чёткие требования")
-                .slot("Образование", "Высшее")
-                .slot("Свободное время", "Есть")
-                .daemon(frame -> "Основные требования к соискателям");
+        final Frame exampleFrame = new
+                Frame("Name")
+                    .slot("First slot", "First value")
+                    .slot("Second slot", 123)
+                    .daemon(frame -> "Daemon return info");
+
+        final Frame freeFrame = new
+                Frame("Чёткие требования")
+                    .slot("Образование", "Высшее")
+                    .slot("Свободное время", "Есть")
+                    .daemon(frame -> "Основные требования к соискателям");
+
+        final Frame time = new
+                Frame("Пригласить на собеседование")
+                    .slot("Резюме", "Есть")
+                    .slot("Номер телефона", "Есть")
+                    .daemon(frame -> "Компания пригласит на собеседование");
 
         addFrames(
                 freeFrame,
@@ -39,6 +52,7 @@ public final class DataBase {
 
     public void addFrames(Frame... inputFrames) {
         for (final Frame frame : inputFrames) {
+            frame.register(this);
             frames.put(frame.getName(), frame);
         }
     }
