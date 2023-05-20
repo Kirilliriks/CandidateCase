@@ -117,9 +117,6 @@ public final class Base {
             case SIGNS -> signs();
         }
 
-        ImGui.end();
-
-        ImGui.begin("Дерево");
         ImNodes.beginNodeEditor();
 
         if (root != null) {
@@ -129,6 +126,7 @@ public final class Base {
 
         ImNodes.miniMap(0.2f, ImNodesMiniMapLocation.BottomRight);
         ImNodes.endNodeEditor();
+
         ImGui.end();
 
         if (!positioned) {
