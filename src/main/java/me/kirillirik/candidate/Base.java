@@ -2,15 +2,17 @@ package me.kirillirik.candidate;
 
 import imgui.ImColor;
 import imgui.ImGui;
+import imgui.ImGuiStyle;
 import imgui.extension.imnodes.ImNodes;
+import imgui.extension.imnodes.ImNodesStyle;
 import imgui.extension.imnodes.flag.ImNodesColorStyle;
 import imgui.extension.imnodes.flag.ImNodesMiniMapLocation;
-import imgui.flag.ImGuiInputTextFlags;
-import imgui.flag.ImGuiTableFlags;
+import imgui.flag.*;
+import imgui.type.ImBoolean;
 import imgui.type.ImString;
+import me.kirillirik.Window;
 import me.kirillirik.tree.Color;
 import me.kirillirik.tree.Node;
-import me.kirillirik.tree.TreeNode;
 
 import java.util.*;
 
@@ -44,6 +46,16 @@ public final class Base {
         load();
     }
 
+    public void init() {
+        ImGui.styleColorsLight();
+
+        final ImGuiStyle style = ImGui.getStyle();
+        style.setWindowRounding(1.0f);
+
+        final ImNodesStyle nodesStyle = ImNodes.getStyle();
+        nodesStyle.setGridSpacing(0.0f);
+    }
+
     private void updateRoot(Rule rule) {
         Node.NODE_COUNTER = 0;
         linkID = 0;
@@ -60,26 +72,42 @@ public final class Base {
     public void update() {
         linkID = 0;
 
-        ImGui.begin("Кандидат");
+        int windowFlags = ImGuiWindowFlags.MenuBar | ImGuiWindowFlags.NoDocking;
+
+        ImGui.setNextWindowPos(0.0f, 0.0f, ImGuiCond.Always);
+        ImGui.setNextWindowSize(Window.getWidth(), Window.getHeight());
+        ImGui.pushStyleVar(ImGuiStyleVar.WindowRounding, 0.0f);
+        ImGui.pushStyleVar(ImGuiStyleVar.WindowBorderSize, 0.0f);
+        windowFlags |= ImGuiWindowFlags.NoCollapse |
+                ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove |
+                ImGuiWindowFlags.NoBringToFrontOnFocus | ImGuiWindowFlags.NoNavFocus;
+
+        ImGui.begin("Кандидат", new ImBoolean(true), windowFlags);
+        ImGui.popStyleVar(2);
+
+        ImGui.beginMenuBar();
+
+        if (ImGui.menuItem("Добавить правило")) {
+            setState(State.NEW_RULE);
+        }
+
+        if (ImGui.menuItem("Получить признаки из ответа (Обратный вывод)")) {
+            setState(State.BACK);
+        }
+
+        if (ImGui.menuItem("Просмотр правил")) {
+            setState(State.RULES);
+        }
+
+        if (ImGui.menuItem("Просмотр признаков")) {
+            setState(State.SIGNS);
+        }
+
         if (error != null) {
             ImGui.text(error);
         }
 
-        if (ImGui.button("Добавить правило")) {
-            setState(State.NEW_RULE);
-        }
-        ImGui.sameLine();
-        if (ImGui.button("Получить признаки из ответа (Обратный вывод)")) {
-            setState(State.BACK);
-        }
-        ImGui.sameLine();
-        if (ImGui.button("Просмотр правил")) {
-            setState(State.RULES);
-        }
-        ImGui.sameLine();
-        if (ImGui.button("Просмотр признаков")) {
-            setState(State.SIGNS);
-        }
+        ImGui.endMenuBar();
 
         switch (state) {
             case BACK -> back();
