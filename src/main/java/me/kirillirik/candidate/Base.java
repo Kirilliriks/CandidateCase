@@ -103,6 +103,10 @@ public final class Base {
             setState(State.SIGNS);
         }
 
+        if (ImGui.menuItem("Просмотр графа")) {
+            setState(State.TREE);
+        }
+
         if (error != null) {
             ImGui.text(error);
         }
@@ -115,23 +119,10 @@ public final class Base {
             case NEW_RULE -> newRule();
             case RULES -> rules();
             case SIGNS -> signs();
+            case TREE -> tree();
         }
-
-        ImNodes.beginNodeEditor();
-
-        if (root != null) {
-            displayTreeNode(root);
-            linkTreeNode(root);
-        }
-
-        ImNodes.miniMap(0.2f, ImNodesMiniMapLocation.BottomRight);
-        ImNodes.endNodeEditor();
 
         ImGui.end();
-
-        if (!positioned) {
-            positioned = true;
-        }
     }
 
     private void back() {
@@ -298,8 +289,29 @@ public final class Base {
         }
     }
 
+    private void tree() {
+        ImNodes.beginNodeEditor();
+
+        if (root != null) {
+            displayTreeNode(root);
+            linkTreeNode(root);
+        }
+
+        ImNodes.miniMap(0.2f, ImNodesMiniMapLocation.BottomRight);
+        ImNodes.endNodeEditor();
+
+        if (!positioned) {
+            positioned = true;
+        }
+    }
+
     public void setState(State state) {
         this.state = state;
+
+        if (state == State.TREE) {
+            return;
+        }
+
         error = null;
 
         first.clear();
@@ -370,6 +382,7 @@ public final class Base {
         SIGNS,
         NEW_RULE,
         BACK,
-        BACK_PROCESS
+        BACK_PROCESS,
+        TREE
     }
 }
