@@ -260,7 +260,9 @@ public final class Base {
                 }
 
                 ImGui.tableSetColumnIndex(3);
-                if (ImGui.button("Просмотр дерева###2" + rule.getExpression())) {
+                if (rule.getRoot() == root) {
+                    ImGui.button("Просмотратриваемое дерево###3");
+                } else if (ImGui.button("Просмотр дерева###2" + rule.getExpression())) {
                     updateRoot(rule);
                 }
             }
