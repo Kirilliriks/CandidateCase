@@ -87,10 +87,6 @@ public final class Base {
 
         ImGui.beginMenuBar();
 
-        if (ImGui.menuItem("Добавить правило")) {
-            setState(State.NEW_RULE);
-        }
-
         if (ImGui.menuItem("Получить признаки из ответа (Обратный вывод)")) {
             setState(State.BACK);
         }
@@ -116,7 +112,6 @@ public final class Base {
         switch (state) {
             case BACK -> back();
             case BACK_PROCESS -> backProcess();
-            case NEW_RULE -> newRule();
             case RULES -> rules();
             case SIGNS -> signs();
             case TREE -> tree();
@@ -199,13 +194,18 @@ public final class Base {
         }
     }
 
-    private void newRule() {
-        ImGui.text("Введите новое правило в формате \"ЕСЛИ x1 ТО x2 \"");
-        ImGui.text("Где x1 - признак1 и/или признак2 и/или .... и/или признакN");
-        ImGui.text("Где x2 - строка результат");
-        ImGui.inputText("ЕСЛИ ", first);
-        ImGui.inputText("ТО ", second);
+    private void rules() {
+        ImGui.text("ЕСЛИ ");
+        ImGui.sameLine();
+        ImGui.setNextItemWidth(250);
+        ImGui.inputText("##ESLI", first);
+        ImGui.sameLine();
+        ImGui.text(" ТО ");
+        ImGui.sameLine();
+        ImGui.setNextItemWidth(250);
+        ImGui.inputText("##TO", second);
 
+        ImGui.spacing();
         if (ImGui.button("Добавить")) {
             final String expression = first.get();
             if (expression == null || expression.isEmpty()) {
@@ -224,14 +224,15 @@ public final class Base {
                 ruleBase.addRule(rule);
 
                 updateRoot(rule);
-                setState(State.INIT);
             } catch (Throwable ignore) {
                 error = "Ошибка в водимом правиле";
             }
         }
-    }
 
-    private void rules() {
+        ImGui.spacing();
+        ImGui.spacing();
+        ImGui.spacing();
+
         final int flags = ImGuiTableFlags.Resizable | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable |
                 ImGuiTableFlags.RowBg | ImGuiTableFlags.Borders | ImGuiTableFlags.NoBordersInBody | ImGuiTableFlags.ScrollY;
 
@@ -380,7 +381,6 @@ public final class Base {
         INIT,
         RULES,
         SIGNS,
-        NEW_RULE,
         BACK,
         BACK_PROCESS,
         TREE
